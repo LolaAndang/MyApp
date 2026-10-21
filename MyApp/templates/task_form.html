@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Task | Study Planner{% endblock %}
+{% block nav_create %}active{% endblock %}
+{% block page_title %}Create New Task{% endblock %}
+
+{% block content %}
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" style="margin-top: 15px; padding: 10px 20px; background: #0f9b8e; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Save Task</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="theme-color" content="#f7f6fb">
+
+    <title>{% block title %}StudyFlow{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=6">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="{% static 'app.js' %}?v=1" defer></script>
+</head>
+
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <a href="{% url 'home' %}" class="brand">
+            <span class="brand-icon">
+                <i data-lucide="graduation-cap"></i>
+            </span>
+            <span class="brand-name">StudyPlanner</span>
+        </a>
+
+        <p class="sidebar-caption">YOUR WORKSPACE</p>
+
+        <nav class="sidebar-nav">
+            <a href="{% url 'home' %}"
+               class="nav-link {% block nav_home %}{% endblock %}">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{% url 'task_list' %}"
+               class="nav-link {% block nav_tasks %}{% endblock %}">
+                <i data-lucide="clipboard-list"></i>
+                <span>My Tasks</span>
+            </a>
+
+            <a href="{% url 'task_create' %}"
+               class="nav-link {% block nav_create %}{% endblock %}">
+                <i data-lucide="circle-plus"></i>
+                <span>Create Task</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-tip-icon">
+                <i data-lucide="sparkles"></i>
+            </div>
+            <p class="sidebar-tip-title">Little by little</p>
+            <p class="sidebar-tip-text">
+                Small progress is still progress. Keep going!
+            </p>
+        </div>
+    </aside>
+
+    <main class="content">
+        <header class="topbar">
+            <div>
+                <span class="topbar-eyebrow">YOUR PERSONAL WORKSPACE</span>
+                <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+            </div>
+
+            <div class="topbar-actions">
+                <span class="topbar-date">
+                    <i data-lucide="calendar-days"></i>
+                    {% now "M j, Y" %}
+                </span>
+
+                <button type="button"
+                        class="theme-toggle"
+                        id="themeToggle"
+                        aria-label="Switch to dark mode"
+                        title="Toggle dark mode">
+                    <i data-lucide="moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </header>
+
+        <section class="page-content">
+            {% block content %}{% endblock %}
+        </section>
+
+        <footer class="main-footer">
+            <span class="footer-brand">
+                <i data-lucide="graduation-cap"></i>
+                StudyPlanner
+            </span>
+            <span class="footer-message">
+                Make time for what matters
+                <i data-lucide="heart" class="footer-heart"></i>
+            </span>
+        </footer>
+    </main>
+</div>
+
+<script>
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+</script>
+</body>
+</html>

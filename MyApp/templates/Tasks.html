@@ -1,0 +1,177 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Tasks | Study Planner{% endblock %}
+{% block nav_tasks %}active{% endblock %}
+{% block page_title %}My Tasks{% endblock %}
+
+{% block content %}
+
+<style>
+    .search-container {
+        margin-bottom: 20px;
+    }
+
+    #taskSearch {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #ded3f5;
+        border-radius: 12px;
+        background: #fff;
+        color: #51436d;
+        font-size: 14px;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #taskSearch:focus {
+        border-color: #a78bfa;
+        box-shadow: 0 0 0 3px #a78bfa30;
+    }
+
+    #searchResultCount {
+        color: #8d849e;
+        font-size: 13px;
+        margin: 0 0 12px;
+    }
+</style>
+
+<div class="search-container">
+    <input
+        type="text"
+        id="taskSearch"
+        placeholder="🔍 Search by title, subject, or description..."
+        aria-label="Search tasks"
+    >
+</div>
+
+<p id="searchResultCount" aria-live="polite"></p>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Subject</th>
+                <th>Due Date</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody id="tasksTableBody">
+            {% for task in tasks %}
+            <tr class="task-row"
+                data-title="{{ task.title|default:''|lower }}"
+                data-subject="{{ task.subject|default:''|lower }}"
+                data-description="{{ task.description|default:''|lower }}">
+
+                <td><strong>{{ task.title }}</strong></td>
+
+                <td>{{ task.subject }}</td>
+
+                <td>
+                    {{ task.due_date|date:"M d, Y"|default:"No due date" }}
+                </td>
+
+                <td>
+                    <span class="badge {% if task.priority == 'High' %}badge-high{% else %}badge-normal{% endif %}">
+                        {{ task.priority|default:"Normal" }}
+                    </span>
+                </td>
+
+                <td>
+                    <a href="{% url 'task_toggle_status' task.id %}"
+                       style="text-decoration: none;"
+                       title="Click to toggle status">
+
+                        {% if task.status == 'Completed' %}
+                            <span class="badge"
+                                  style="background: rgba(46,125,50,.15); color: #2e7d32; font-weight: 600; padding: 4px 8px; border-radius: 4px;">
+                                ✓ Completed
+                            </span>
+                        {% else %}
+                            <span class="badge"
+                                  style="background: rgba(255,193,7,.15); color: #b78103; font-weight: 600; padding: 4px 8px; border-radius: 4px;">
+                                ⏳ Pending
+                            </span>
+                        {% endif %}
+                    </a>
+                </td>
+
+                <td>
+                    <a href="{% url 'task_edit' task.id %}"
+                       style="color: #2e7d32; text-decoration: none; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: rgba(46,125,50,.1); margin-right: 6px;">
+                        Edit
+                    </a>
+
+                    <a href="{% url 'task_delete' task.id %}"
+                       style="color: #d9534f; text-decoration: none; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: rgba(217,83,79,.1);">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+
+            {% empty %}
+            <tr id="emptyTasksRow">
+                <td colspan="6" style="text-align: center; padding: 24px;">
+                    No tasks found. Click "Add Task" to create one!
+                </td>
+            </tr>
+            {% endfor %}
+
+            <tr id="noSearchResults" hidden>
+                <td colspan="6" style="text-align: center; padding: 24px;">
+                    No matching tasks found. Try another keyword.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("taskSearch");
+    const taskRows = document.querySelectorAll(".task-row");
+    const resultCount = document.getElementById("searchResultCount");
+    const noResults = document.getElementById("noSearchResults");
+
+    function searchTasks() {
+        const keyword = searchInput.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        taskRows.forEach(function (row) {
+            const title = row.dataset.title || "";
+            const subject = row.dataset.subject || "";
+            const description = row.dataset.description || "";
+
+            const matches =
+                title.includes(keyword) ||
+                subject.includes(keyword) ||
+                description.includes(keyword);
+
+            row.hidden = !matches;
+
+            if (matches) {
+                visibleCount++;
+            }
+        });
+
+        if (noResults) {
+            noResults.hidden =
+                visibleCount > 0 || taskRows.length === 0;
+        }
+
+        resultCount.textContent =
+            "Showing " + visibleCount +
+            " of " + taskRows.length + " tasks";
+    }
+
+    searchInput.addEventListener("input", searchTasks);
+    searchTasks();
+});
+</script>
+
+{% endblock %}

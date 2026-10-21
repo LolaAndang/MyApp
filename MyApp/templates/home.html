@@ -1,0 +1,173 @@
+
+{% extends 'base.html' %}
+
+{% block title %}STUDYPLANNER | StudyPlanner{% endblock %}
+{% block nav_tasks %}active{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="study-tasks-page">
+
+    <!-- Page Header -->
+    <div class="tasks-welcome">
+        <div>
+            <span class="tasks-eyebrow">STAY ORGANIZED ✨</span>
+            <h2>StudyPlanner</h2>
+            <p>Manage your assignments, deadlines, and study goals in one place.</p>
+        </div>
+
+        <a href="{% url 'task_create' %}" class="add-task-btn">
+            <span>＋</span> Add New Task
+        </a>
+    </div>
+
+    <!-- Task Summary -->
+    <div class="task-summary-grid">
+        <div class="task-summary-card">
+            <div class="summary-icon purple-bg">📝</div>
+            <div>
+                <p>Total Tasks</p>
+                <h3>{{ tasks|length }}</h3>
+            </div>
+        </div>
+
+        <div class="task-summary-card">
+            <div class="summary-icon orange-bg">⏳</div>
+            <div>
+                <p>Pending</p>
+                <h3>{{ pending_count|default:0 }}</h3>
+            </div>
+        </div>
+
+        <div class="task-summary-card">
+            <div class="summary-icon green-bg">✅</div>
+            <div>
+                <p>Completed</p>
+                <h3>{{ completed_count|default:0 }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="task-toolbar">
+        <div class="task-search">
+            <span>🔎</span>
+            <input
+                type="text"
+                id="taskSearch"
+                placeholder="Search tasks or subjects..."
+                aria-label="Search tasks"
+            >
+        </div>
+
+        <select id="statusFilter" aria-label="Filter tasks by status">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+        </select>
+
+        <select id="priorityFilter" aria-label="Filter tasks by priority">
+            <option value="all">All Priorities</option>
+            <option value="high">High Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="normal">Normal Priority</option>
+            <option value="low">Low Priority</option>
+        </select>
+    </div>
+
+    <!-- Task Cards -->
+    <div class="study-task-grid" id="studyTaskGrid">
+
+        {% for task in tasks %}
+        <article
+            class="study-task-card"
+            data-status="{{ task.status|lower }}"
+            data-priority="{{ task.priority|default:'normal'|lower }}"
+            data-search="{{ task.title|lower }} {{ task.subject|lower }} {{ task.description|default:''|lower }}"
+        >
+
+            <div class="study-task-top">
+                <span class="task-subject">
+                    📚 {{ task.subject }}
+                </span>
+
+                <span class="task-priority priority-{{ task.priority|default:'normal'|lower }}">
+                    {{ task.priority|default:"Normal" }} Priority
+                </span>
+            </div>
+
+            <h3 class="study-task-title">{{ task.title }}</h3>
+
+            <p class="study-task-description">
+                {{ task.description|default:"No description added yet."|truncatechars:120 }}
+            </p>
+
+            <div class="study-task-date">
+                <span>📅</span>
+                <span>
+                    Due:
+                    {{ task.due_date|date:"M d, Y"|default:"No due date" }}
+                </span>
+            </div>
+
+            <div class="study-task-footer">
+                <span class="task-status status-{{ task.status|lower }}">
+                    <span class="status-dot"></span>
+                    {{ task.status }}
+                </span>
+
+                <div class="task-actions">
+                    <a href="{% url 'task_edit' task.pk %}"
+                       class="task-action edit-action"
+                       aria-label="Edit {{ task.title }}"
+                       title="Edit task">
+                        ✏️
+                    </a>
+
+                    <a href="{% url 'task_delete' task.pk %}"
+                       class="task-action delete-action"
+                       aria-label="Delete {{ task.title }}"
+                       title="Delete task">
+                        🗑️
+                    </a>
+                </div>
+            </div>
+
+            <form method="post"
+                  action="{% url 'task_toggle_status' task.pk %}"
+                  class="task-complete-form">
+                {% csrf_token %}
+                <button type="submit" class="complete-task-btn">
+                    {% if task.status == 'Completed' %}
+                        ↩ Mark as Pending
+                    {% else %}
+                        ✓ Mark as Completed
+                    {% endif %}
+                </button>
+            </form>
+
+        </article>
+
+        {% empty %}
+        <div class="no-study-tasks">
+            <div class="empty-task-icon">🌷</div>
+            <h3>Your study space is waiting!</h3>
+            <p>You haven't added any tasks yet. Start by creating your first study task.</p>
+            <a href="{% url 'task_create' %}" class="add-task-btn">
+                ＋ Create Your First Task
+            </a>
+        </div>
+        {% endfor %}
+
+        <div id="noSearchResults" class="no-search-results" hidden>
+            <span>🔍</span>
+            <h3>No matching tasks</h3>
+            <p>Try another keyword or change your filters.</p>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
